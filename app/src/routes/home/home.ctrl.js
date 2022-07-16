@@ -1,5 +1,7 @@
 "use strict";
 
+const UserStorage = require("../../models/UserStorage");
+
 const output = {
   // home이라는 컨트롤러 함수를 만들고, 이를 외부에서 사용해준다.
   home: (req, res) => {
@@ -11,32 +13,28 @@ const output = {
   },
 };
 
-const users = {
-  id: ["sanghee", "나개발", "김팀장"],
-  psword: ["1234", "1234", "123456"],
-};
-
 const process = {
   login: (req, res) => {
     // 여기서 req는 front에서 전달한 req(요청) 데이터들을 담아두는 변수
     const id = req.body.id,
       psword = req.body.psword;
 
+    const users = UserStorage.getUsers("id", "psword");
+
+    const response = {};
     if (users.id.includes(id)) {
       //만약 id가 있으면
       const idx = users.id.indexOf(id); // id의 index를 가져옴
       if (users.psword[idx] === psword) {
-        return res.json({
-          success: true, // success:true라는 object를 json으로 만들어서 res 프론트로 응답해주게 되는거. 실패했을땐 if문 밖
-        });
+        response.success = true; // success:true라는 object를 json으로 만들어서 res 프론트로 응답해주게 되는거. 실패했을땐 if문 밖
+        return res.json(response);
       }
     }
 
     // 실패했을 땐(여기서 굳이 else안쓰는 이유는 위에 return 구문으로 나가기 때문)
-    return res.json({
-      success: false,
-      msg: "로그인에 실패하였습니다.",
-    });
+    response.success = false;
+    response.msg = "로그인에 실패하셨습니다.";
+    return res.json(response);
   },
 };
 
